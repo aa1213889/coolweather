@@ -2,6 +2,7 @@ package com.coolweather.android;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -56,7 +57,7 @@ public class ChooseAreaFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area,container,false);
-        titleText = (TextView)view.findViewById(R.id.title_text);
+        titleText = view.findViewById(R.id.title_text);
         backButton = view.findViewById(R.id.back_button);
         listView = view.findViewById(R.id.list_view);
         adapter = new ArrayAdapter<>(view.getContext(),android.R.layout.simple_list_item_1,dataList);
@@ -77,7 +78,14 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel == LEVEL_CITY){
                       selectedCity = cityList.get(position);
                       queryCounties();
+                }else if(currentLevel ==LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
+
             }
         });
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -164,7 +172,7 @@ public class ChooseAreaFragment extends Fragment {
                  getActivity().runOnUiThread(new Runnable() {
                      @Override
                      public void run() {
-                         closePeogressDialog();
+                       closeProgressDialog();
                          if ("province".equals(type)){
                              queryProvinces();
                          }else if("city".equals(type)){
@@ -181,7 +189,7 @@ public class ChooseAreaFragment extends Fragment {
                    getActivity().runOnUiThread(new Runnable() {
                        @Override
                        public void run() {
-                           closePeogressDialog();
+                          closeProgressDialog();
                            Toast.makeText(getActivity(),"加载失败..",Toast.LENGTH_SHORT).show();
                        }
                    });
@@ -192,11 +200,11 @@ public class ChooseAreaFragment extends Fragment {
         if(progressDialog == null){
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("正在加载...");
-            progressDialog.setCanceledOnTouchOutside(false); //触摸进度条其他区域 进度条消失
+            progressDialog.setCanceledOnTouchOutside(false); //触摸进度条其他区域 进度条不消失
         }
         progressDialog.show();
     }
-    private void closePeogressDialog(){
+    private void closeProgressDialog(){
         if(progressDialog !=null){
             progressDialog.dismiss();
         }
